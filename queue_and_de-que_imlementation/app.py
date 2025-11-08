@@ -27,5 +27,26 @@ class Queue:
 
 app = Flask(__name__)
 
+my_queue = Queue()
+
+@app.route('/')
+def index():
+    return render_template('index.html', queue=my_queue.queue)
+
+@app.route('/enqueue', methods=['POST'])
+def enqueue():
+    item = request.form.get('item')
+    if item:
+        my_queue.enqueue(item)
+    return redirect(url_for('index'))
+
+@app.route('/dequeue')
+def dequeue():
+    try:
+        my_queue.dequeue()
+    except Exception as e:
+        print(e)
+    return redirect(url_for('index'))
+
 if __name__ == "__main__":
     app.run(debug=True)
