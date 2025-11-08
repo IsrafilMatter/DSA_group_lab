@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Restaurant Queue - Plain Interface</title>
-</head>
+{% extends "base.html" %}
+
+{% block title %}Restaurant Queue Simulator{% endblock title %}
+
+{% block content %}
 <body>
-    <h1>Restaurant Queue System</h1>
+    <h1>Restaurant Queue Simulator</h1>
 
     <form action="/add" method="POST">
         <label for="name">Customer name:</label>
@@ -36,4 +35,4 @@
     </form>
 
 </body>
-</html>
+{% endblock content %}
