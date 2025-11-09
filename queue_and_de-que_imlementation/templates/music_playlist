@@ -1,1 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Music Playlist{% endblock title %}
+
+{% block content %}
+<div class="restaurant-container">
+    <h1>Music Playlist</h1>
+    
+    <div class="playlist-display">
+        <h2>Current Playlist:</h2>
+        {% if playlist %}
+            <ol>
+                {% for song in playlist %}
+                    <li>{{ song }}</li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <p>Playlist is empty.</p>
+        {% endif %}
+    </div>
+
+    <form class="form" action="/projects/music_playlist/add_front" method="POST">
+        <label for="song_front">Song name:</label>
+        <input type="text" id="song_front" name="song" required>
+        <button type="submit">1. Add Song at Front (Play Next)</button>
+    </form>
+
+    <form class="form" action="/projects/music_playlist/add_back" method="POST">
+        <label for="song_back">Song name:</label>
+        <input type="text" id="song_back" name="song" required>
+        <button type="submit">2. Add Song at Back (Play Later)</button>
+    </form>
+
+    <form class="form-button-only" action="/projects/music_playlist/play" method="GET">
+        <button type="submit">3. Play Next Song</button>
+    </form>
+
+    <form class="form-button-only" action="/projects/music_playlist/next" method="GET">
+        <button type="submit">4. View Next Song</button>
+    </form>
+
+    <form class="form-button-only" action="/projects/music_playlist/size" method="GET">
+        <button type="submit">5. View Playlist Size</button>
+    </form>
+
+    <form class="form-button-only" action="/projects/music_playlist/view" method="GET">
+        <button type="submit">6. View Full Playlist</button>
+    </form>
+</div>
+{% endblock content %}
+
 
