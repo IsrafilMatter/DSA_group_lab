@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
+from collections import deque
 
 class Node:
     def __init__(self, data):
@@ -46,6 +47,7 @@ class Queue:
         return result
 
 Q = Queue()
+tabs = deque()
 
 app = Flask(__name__)
 
@@ -92,6 +94,37 @@ def remove_customer():
 @app.route('/projects/restaurant_simulator/queue')
 def view_queue():
     return f"Current queue: {Q.get_queue_list()}"
+
+# Tab Manager Routes
+@app.route('/projects/tab_manager')
+def tab_manager():
+    return render_template('tab_manager.html', tabs=list(tabs))
+
+@app.route('/projects/tab_manager/add_front', methods=['POST'])
+def add_front():
+    page = request.form.get("page")
+    if page:
+        tabs.appendleft(page)
+    return redirect(url_for("tab_manager"))
+
+@app.route('/projects/tab_manager/add_rear', methods=['POST'])
+def add_rear():
+    page = request.form.get("page")
+    if page:
+        tabs.append(page)
+    return redirect(url_for("tab_manager"))
+
+@app.route('/projects/tab_manager/remove_front', methods=['POST'])
+def remove_front():
+    if tabs:
+        tabs.popleft()
+    return redirect(url_for("tab_manager"))
+
+@app.route('/projects/tab_manager/remove_rear', methods=['POST'])
+def remove_rear():
+    if tabs:
+        tabs.pop()
+    return redirect(url_for("tab_manager"))
 
 if __name__ == "__main__":
     app.run(debug=True)
