@@ -5,9 +5,78 @@ Home
 {% endblock title %}
 
 {% block content %}
-<section>
-    <div >
-        <h1>Hello, This is our Group Portfolio!</h1>
+<style>
+    .home-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #D0FFF0 0%, #F0FFD0 50%, #FFF0F0 100%);
+        position: relative;
+        padding: 40px 20px;
+    }
+
+    .home-section h1 {
+        text-align: center;
+        color: white;
+        font-size: 70px;
+        font-weight: 700;
+        letter-spacing: 8px;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        animation: text 3s 1;
+    }
+
+    .home-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .home-item {
+        text-align: center;
+    }
+
+    .home-item h3 {
+        font-size: 30px;
+        color: #2d5a3d;
+        font-family: Georgia, serif;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        margin: 0;
+    }
+
+    .home-item h3.smaller {
+        font-size: 25px;
+    }
+
+    @keyframes text {
+        0% {
+            color: black;
+            margin-bottom: -40px;
+        }
+
+        30% {
+            letter-spacing: 25px;
+            margin-bottom: -40px;
+        }
+
+        85% {
+            letter-spacing: 8px;
+            margin-bottom: -40px;
+        }
+    }
+</style>
+
+<section class="home-section">
+    <h1>Hello!</h1>
+    <div class="home-list">
+        <div class="home-item">
+            <h3>This is our Group Portfolio!</h3>
+        </div>
+        <div class="home-item">
+            <h3>BSCPE 2-2</h3>
+        </div>
+        <div class="home-item">
+            <h3 class="smaller">Data Structure and Algorithm</h3>
+        </div>
     </div>
 </section>
 {% endblock content %}
