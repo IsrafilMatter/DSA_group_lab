@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from collections import deque
 
 class Node:
@@ -71,6 +71,7 @@ def projects():
 
 @app.route('/projects/restaurant_simulator')
 def restaurant():
+    session.pop('_flashes', None)
     return render_template('restaurant.html', queue=Q.get_queue_list())
 
 @app.route('/projects/restaurant_simulator/add', methods=['POST'])
