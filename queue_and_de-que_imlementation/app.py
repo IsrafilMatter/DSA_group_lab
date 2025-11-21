@@ -69,6 +69,10 @@ def profile():
 def projects():
     return render_template('projects.html')
 
+@app.route('/projects/queue_card_game')
+def queue_card_game():
+    return render_template('queue_card_game.html')
+
 @app.route('/projects/restaurant_simulator')
 def restaurant():
     session.pop('_flashes', None)
