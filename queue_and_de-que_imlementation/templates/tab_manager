@@ -52,7 +52,7 @@
             <label for="page_front">Add to Front</label>
             <input type="text" id="page_front" name="page" placeholder="Enter page name" required>
             <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
-                ➕ Add Front
+                Add Front
             </button>
         </form>
 
@@ -60,19 +60,19 @@
             <label for="page_rear">Add to Rear</label>
             <input type="text" id="page_rear" name="page" placeholder="Enter page name" required>
             <button type="submit" style="background: linear-gradient(135deg, var(--secondary-color), #7c3aed);">
-                ➕ Add Rear
+                Add Rear
             </button>
         </form>
 
         <form class="form-button-only" action="/projects/tab_manager/remove_front" method="POST">
             <button type="submit" style="background: linear-gradient(135deg, var(--danger-color), #dc2626);">
-                ❌ Close Front Tab
+                Close Front Tab
             </button>
         </form>
 
         <form class="form-button-only" action="/projects/tab_manager/remove_rear" method="POST">
             <button type="submit" style="background: linear-gradient(135deg, var(--warning-color), #d97706);">
-                ❌ Close Rear Tab
+                Close Rear Tab
             </button>
         </form>
     </div>
