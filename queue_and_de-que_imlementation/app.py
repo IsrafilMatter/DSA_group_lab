@@ -1,5 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from collections import deque
+from bst import BST
+from restaurant import Restaurant
+import subprocess
+import os
 
 class Node:
     def __init__(self, data):
@@ -37,6 +41,11 @@ class Queue:
     def size(self):
         return self._size
     
+    def peek(self):
+        if self.is_empty():
+            return None
+        return self.front.data
+    
     def get_queue_list(self):
         """Convert linked list to Python list for display"""
         result = []
@@ -46,10 +55,12 @@ class Queue:
             current = current.next
         return result
 
-Q = Queue()
+restaurant = Restaurant()
 tabs = deque()
+bst_tree = BST()
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # Needed for flash messages
 
 @app.route('/')
 def index():
@@ -64,36 +75,48 @@ def projects():
     return render_template('projects.html')
 
 @app.route('/projects/restaurant_simulator')
-def restaurant():
-    return render_template('restaurant.html', queue=Q.get_queue_list())
+def restaurant_route():
+    session.pop('_flashes', None)
+    status = restaurant.status()
+    queue = status.get('queue', [])
+    return render_template('restaurant.html', 
+                         queue=queue,
+                         available_tables=status.get('available_tables', {}))
 
 @app.route('/projects/restaurant_simulator/add', methods=['POST'])
 def add_customer():
     name = request.form.get('name')
-    if name:
-        Q.enqueue(name)
-    return redirect(url_for('restaurant'))
+    party_size = request.form.get('party_size', type=int)
+    if name and party_size:
+        if party_size not in [2, 4, 8]:
+            flash('Party size must be 2, 4, or 8!', 'error')
+        else:
+            message = restaurant.walk_in(name, party_size)
+            flash(f'{message}', 'success')
+    else:
+        flash('Please enter a customer name and party size!', 'error')
+    return redirect(url_for('restaurant_route'))
 
-@app.route('/projects/restaurant_simulator/next')
-def next_customer():
-    if Q.is_empty():
-        return "Queue is empty, no next customer."
-    return f"Next customer: {Q.front.data}"
-
-@app.route('/projects/restaurant_simulator/size')
-def queue_size():
-    return f"Queue size: {Q.size()}"
-
-@app.route('/projects/restaurant_simulator/remove')
+@app.route('/projects/restaurant_simulator/remove', methods=['POST'])
 def remove_customer():
-    if Q.is_empty():
-        return "Queue is empty, nothing to remove."
-    removed = Q.dequeue()
-    return f"Removed '{removed}' from queue."
+    name = request.form.get('name')
+    if name:
+        message = restaurant.cancel_customer(name)
+        flash(f'{message}', 'success')
+    else:
+        flash('Please enter a customer name!', 'error')
+    return redirect(url_for('restaurant_route'))
 
-@app.route('/projects/restaurant_simulator/queue')
-def view_queue():
-    return f"Current queue: {Q.get_queue_list()}"
+@app.route('/projects/restaurant_simulator/finish_meal', methods=['POST'])
+def finish_meal():
+    table_id = request.form.get('table_id', type=int)
+    if table_id:
+        table_size = table_id // 10
+        message = restaurant.finish_meal(table_size, table_id)
+        flash(f'{message}', 'success')
+    else:
+        flash('Please select a table!', 'error')
+    return redirect(url_for('restaurant_route'))
 
 # Tab Manager Routes
 @app.route('/projects/tab_manager')
@@ -105,6 +128,9 @@ def add_front():
     page = request.form.get("page")
     if page:
         tabs.appendleft(page)
+        flash(f'Added "{page}" to front!', 'success')
+    else:
+        flash('Please enter a page name!', 'error')
     return redirect(url_for("tab_manager"))
 
 @app.route('/projects/tab_manager/add_rear', methods=['POST'])
@@ -112,19 +138,114 @@ def add_rear():
     page = request.form.get("page")
     if page:
         tabs.append(page)
+        flash(f'Added "{page}" to rear!', 'success')
+    else:
+        flash('Please enter a page name!', 'error')
     return redirect(url_for("tab_manager"))
 
 @app.route('/projects/tab_manager/remove_front', methods=['POST'])
 def remove_front():
     if tabs:
-        tabs.popleft()
+        removed = tabs.popleft()
+        flash(f'Removed "{removed}" from front!', 'success')
+    else:
+        flash('No tabs to remove!', 'error')
     return redirect(url_for("tab_manager"))
 
 @app.route('/projects/tab_manager/remove_rear', methods=['POST'])
 def remove_rear():
     if tabs:
-        tabs.pop()
+        removed = tabs.pop()
+        flash(f'Removed "{removed}" from rear!', 'success')
+    else:
+        flash('No tabs to remove!', 'error')
     return redirect(url_for("tab_manager"))
+
+# Binary Search Tree Routes
+@app.route('/projects/binary_tree')
+def binary_tree():
+    session.pop('_flashes', None)
+    nodes, edges, svg_info = bst_tree.layout()
+    traversal = bst_tree.post_traversal(bst_tree.root, [])
+    return render_template('binary_tree.html', nodes=nodes, edges=edges, svg_info=svg_info, traversal=traversal)
+
+@app.route('/projects/binary_tree/insert', methods=['POST'])
+def bst_insert():
+    try:
+        value = int(request.form.get('value'))
+        bst_tree.insert(value)
+        flash(f'Inserted {value} into the tree!', 'success')
+    except ValueError:
+        flash('Please enter a valid number!', 'error')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+    return redirect(url_for('binary_tree'))
+
+@app.route('/projects/binary_tree/search', methods=['POST'])
+def bst_search():
+    try:
+        value = int(request.form.get('value'))
+        found = bst_tree.search(bst_tree.root, value)
+        if found:
+            flash(f'Found {value} in the tree!', 'success')
+        else:
+            flash(f'{value} not found in the tree.', 'info')
+    except ValueError:
+        flash('Please enter a valid number!', 'error')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+    return redirect(url_for('binary_tree'))
+
+@app.route('/projects/binary_tree/delete', methods=['POST'])
+def bst_delete():
+    try:
+        value = int(request.form.get('value'))
+        found = bst_tree.search(bst_tree.root, value)
+        if found:
+            bst_tree.root = bst_tree.delete_node(bst_tree.root, value)
+            flash(f'Deleted {value} from the tree!', 'success')
+        else:
+            flash(f'{value} not found in the tree.', 'info')
+    except ValueError:
+        flash('Please enter a valid number!', 'error')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+    return redirect(url_for('binary_tree'))
+
+@app.route('/projects/binary_tree/clear', methods=['POST'])
+def bst_clear():
+    bst_tree.root = None
+    flash('Tree cleared!', 'success')
+    return redirect(url_for('binary_tree'))
+
+# Baccarat Game Routes
+@app.route('/projects/baccarat_game')
+def baccarat_game():
+    session.pop('_flashes', None)
+    return render_template('baccarat_game.html')
+
+@app.route('/projects/baccarat_game/run', methods=['POST'])
+def run_baccarat_game():
+    try:
+        # Path to the baccarat game script
+        # app.py is at: DSA/flask_web_development-main/queue_and_de-que_imlementation/app.py
+        # baccarat_game.py is at: DSA/baccarat_game/baccarat_game.py
+        current_dir = os.path.dirname(os.path.abspath(__file__))  # queue_and_de-que_imlementation
+        parent_dir = os.path.dirname(current_dir)  # flask_web_development-main
+        dsa_dir = os.path.dirname(parent_dir)  # DSA
+        script_path = os.path.join(dsa_dir, 'baccarat_game', 'baccarat_game.py')
+        
+        # Normalize path for Windows
+        script_path = os.path.normpath(script_path)
+        
+        # Launch the game as a subprocess (non-blocking)
+        subprocess.Popen(['python', script_path], 
+                        creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
+        flash('Baccarat game launched!', 'success')
+    except Exception as e:
+        flash(f'Error launching game: {str(e)}', 'error')
+    
+    return redirect(url_for('baccarat_game'))
 
 if __name__ == "__main__":
     app.run(debug=True)
