@@ -10,73 +10,217 @@ Home
         min-height: 100vh;
         background: linear-gradient(135deg, #D0FFF0 0%, #F0FFD0 50%, #FFF0F0 100%);
         position: relative;
-        padding: 40px 20px;
+        padding: 60px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .home-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 219, 226, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(173, 216, 230, 0.1) 0%, transparent 50%);
+        z-index: 0;
+    }
+
+    .home-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
     }
 
     .home-section h1 {
-        text-align: center;
-        color: white;
-        font-size: 70px;
-        font-weight: 700;
-        letter-spacing: 8px;
-        margin-bottom: 30px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        animation: text 3s 1;
-    }
-
-    .home-list {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .home-item {
-        text-align: center;
-    }
-
-    .home-item h3 {
-        font-size: 30px;
         color: #2d5a3d;
-        font-family: Georgia, serif;
-        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-        margin: 0;
+        font-size: 4.5rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+        margin-bottom: 40px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        animation: textReveal 2s ease-out;
     }
 
-    .home-item h3.smaller {
-        font-size: 25px;
+    .home-subtitle {
+        font-size: 1.8rem;
+        color: #4a7c59;
+        margin-bottom: 50px;
+        font-weight: 500;
+        animation: fadeInUp 1s ease-out 0.5s both;
     }
 
-    @keyframes text {
+    .home-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 30px 20px;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        animation: fadeInUp 1s ease-out 0.8s both;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-card:nth-child(2) {
+        animation-delay: 1s;
+    }
+
+    .feature-card:nth-child(3) {
+        animation-delay: 1.2s;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .feature-title {
+        font-size: 1.3rem;
+        color: #2d5a3d;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .feature-description {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #4a7c59, #2d5a3d);
+        color: white;
+        padding: 15px 40px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-top: 40px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+        animation: fadeInUp 1s ease-out 1.5s both;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(45, 90, 61, 0.4);
+        color: white;
+    }
+
+    @keyframes textReveal {
         0% {
-            color: black;
-            margin-bottom: -40px;
+            opacity: 0;
+            transform: translateY(30px);
         }
-
-        30% {
-            letter-spacing: 25px;
-            margin-bottom: -40px;
+        100% {
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
 
-        85% {
-            letter-spacing: 8px;
-            margin-bottom: -40px;
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .home-section h1 {
+            font-size: 3rem;
+            letter-spacing: 2px;
+        }
+        
+        .home-subtitle {
+            font-size: 1.4rem;
+        }
+        
+        .home-features {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .feature-card {
+            padding: 25px 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .home-section {
+            padding: 40px 15px;
+        }
+        
+        .home-section h1 {
+            font-size: 2.5rem;
+        }
+        
+        .home-subtitle {
+            font-size: 1.2rem;
         }
     }
 </style>
 
 <section class="home-section">
-    <h1>Hello!</h1>
-    <div class="home-list">
-        <div class="home-item">
-            <h3>This is our Group Portfolio!</h3>
+    <div class="home-content">
+        <h1>WELCOME</h1>
+        <div class="home-subtitle">
+            Explore Our Data Structures & Algorithms Portfolio
         </div>
-        <div class="home-item">
-            <h3>BSCPE 2-2</h3>
+        
+        <div class="home-features">
+            <div class="feature-card">
+                <div class="feature-title">Meet Our Team</div>
+                <div class="feature-description">
+                    Get to know the BSCPE 2-2 students behind this project
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-title">Interactive Projects</div>
+                <div class="feature-description">
+                    Demonstrations of fundamental data structures including queues, deques, and more through practical applications.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-title">Learning Resources</div>
+                <div class="feature-description">
+                    Understand core DSA concepts through visual, interactive implementations
+                </div>
+            </div>
         </div>
-        <div class="home-item">
-            <h3 class="smaller">Data Structure and Algorithm</h3>
-        </div>
+        
+        <a href="/projects" class="cta-button">
+            Explore Our Projects →
+        </a>
     </div>
 </section>
 {% endblock content %}
