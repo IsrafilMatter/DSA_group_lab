@@ -8,7 +8,10 @@ Home
 <style>
     .home-section {
         min-height: 100vh;
-        background: linear-gradient(135deg, #D0FFF0 0%, #F0FFD0 50%, #FFF0F0 100%);
+        background: #0a0e1a;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
         position: relative;
         padding: 60px 20px;
         display: flex;
@@ -17,20 +20,8 @@ Home
         align-items: center;
         text-align: center;
         overflow: hidden;
-    }
-
-    .home-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 20% 80%, rgba(120, 219, 226, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(173, 216, 230, 0.1) 0%, transparent 50%);
-        z-index: 0;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-color);
     }
 
     .home-content {
@@ -40,18 +31,22 @@ Home
     }
 
     .home-section h1 {
-        color: #2d5a3d;
+        color: #ffffff;
         font-size: 4.5rem;
         font-weight: 800;
         letter-spacing: 3px;
         margin-bottom: 40px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
         animation: textReveal 2s ease-out;
     }
 
     .home-subtitle {
         font-size: 1.8rem;
-        color: #4a7c59;
+        color: #cbd5e1;
         margin-bottom: 50px;
         font-weight: 500;
         animation: fadeInUp 1s ease-out 0.5s both;
@@ -67,19 +62,20 @@ Home
     }
 
     .feature-card {
-        background: rgba(255, 255, 255, 0.85);
+        background: #1e293b;
         padding: 30px 20px;
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        border: 1px solid #334155;
         transition: all 0.3s ease;
         animation: fadeInUp 1s ease-out 0.8s both;
     }
 
     .feature-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        border-color: #8b5cf6;
+        background: #334155;
     }
 
     .feature-card:nth-child(2) {
@@ -98,20 +94,20 @@ Home
 
     .feature-title {
         font-size: 1.3rem;
-        color: #2d5a3d;
+        color: #ffffff;
         margin-bottom: 10px;
         font-weight: 600;
     }
 
     .feature-description {
-        color: #666;
+        color: #cbd5e1;
         font-size: 0.95rem;
         line-height: 1.5;
     }
 
     .cta-button {
         display: inline-block;
-        background: linear-gradient(135deg, #4a7c59, #2d5a3d);
+        background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
         color: white;
         padding: 15px 40px;
         border-radius: 50px;
@@ -120,14 +116,15 @@ Home
         font-size: 1.1rem;
         margin-top: 40px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         animation: fadeInUp 1s ease-out 1.5s both;
     }
 
     .cta-button:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(45, 90, 61, 0.4);
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
         color: white;
+        background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
     }
 
     @keyframes textReveal {
@@ -190,9 +187,10 @@ Home
 
 <section class="home-section">
     <div class="home-content">
-        <h1>WELCOME</h1>
-        <div class="home-subtitle">
-            Explore Our Data Structures & Algorithms Portfolio
+        <h1>WELCOME TO POGO</h1>
+        <div class="home-subtitle" style="display: flex; align-items: center; gap: 1rem; justify-content: center;">
+            <img src="{{ url_for('static', filename='images/pogo_icon.png') }}" alt="POGO Icon" class="pogi-inline-icon" style="height: 2.2em; width: 2.2em; filter: drop-shadow(0 0 10px #8b5cf6); vertical-align: middle; border-radius: 0.5em; background: rgba(139,92,246,0.07); padding: .15em;"/>
+            <span>Programmers of Gambling Operations</span>
         </div>
         
         <div class="home-features">
@@ -207,13 +205,6 @@ Home
                 <div class="feature-title">Interactive Projects</div>
                 <div class="feature-description">
                     Demonstrations of fundamental data structures including queues, deques, and more through practical applications.
-                </div>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-title">Learning Resources</div>
-                <div class="feature-description">
-                    Understand core DSA concepts through visual, interactive implementations
                 </div>
             </div>
         </div>
