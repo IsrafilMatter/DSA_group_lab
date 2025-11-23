@@ -4,6 +4,7 @@ from bst import BST
 from restaurant import Restaurant
 import subprocess
 import os
+import sys
 
 class Node:
     def __init__(self, data):
@@ -227,23 +228,108 @@ def baccarat_game():
 @app.route('/projects/baccarat_game/run', methods=['POST'])
 def run_baccarat_game():
     try:
-        # Path to the baccarat game script
-        # app.py is at: DSA/flask_web_development-main/queue_and_de-que_imlementation/app.py
-        # baccarat_game.py is at: DSA/baccarat_game/baccarat_game.py
-        current_dir = os.path.dirname(os.path.abspath(__file__))  # queue_and_de-que_imlementation
-        parent_dir = os.path.dirname(current_dir)  # flask_web_development-main
-        dsa_dir = os.path.dirname(parent_dir)  # DSA
-        script_path = os.path.join(dsa_dir, 'baccarat_game', 'baccarat_game.py')
+        # First, check if pygame is installed
+        try:
+            import pygame
+        except ImportError:
+            flash('Error: Pygame is not installed. Please install it with: pip install pygame', 'error')
+            return redirect(url_for('baccarat_game'))
         
-        # Normalize path for Windows
+        # Path to the baccarat game script
+        # app.py is at: queue_and_de-que_imlementation/app.py
+        # baccarat_game.py is at: queue_and_de-que_imlementation/baccarat_game/baccarat_game.py
+        current_dir = os.path.dirname(os.path.abspath(__file__))  # queue_and_de-que_imlementation
+        game_dir = os.path.join(current_dir, 'baccarat_game')
+        script_path = os.path.join(game_dir, 'baccarat_game.py')
+        
+        # Normalize paths for Windows
         script_path = os.path.normpath(script_path)
+        game_dir = os.path.normpath(game_dir)
+        
+        # Verify the file exists
+        if not os.path.exists(script_path):
+            flash(f'Error: Game file not found at {script_path}', 'error')
+            return redirect(url_for('baccarat_game'))
+        
+        # Use sys.executable to use the same Python interpreter, or try 'py' as fallback on Windows
+        python_exe = sys.executable
+        if os.name == 'nt':
+            # On Windows, try 'py' launcher if sys.executable doesn't exist
+            if not os.path.exists(python_exe):
+                python_exe = 'py'
+        
+        # Debug: Print what we're trying to run
+        print(f"Launching game with: {python_exe} {script_path}")
+        print(f"Working directory: {game_dir}")
         
         # Launch the game as a subprocess (non-blocking)
-        subprocess.Popen(['python', script_path], 
-                        creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
+        # Set working directory to game directory so assets can be found
+        if os.name == 'nt':
+            # Windows: Create new console window
+            try:
+                # Try with CREATE_NEW_CONSOLE first
+                process = subprocess.Popen(
+                    [python_exe, script_path], 
+                    cwd=game_dir,
+                    creationflags=subprocess.CREATE_NEW_CONSOLE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                # Give it a moment to start
+                import time
+                time.sleep(0.5)
+                # Check if process is still running (if it crashed immediately)
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate()
+                    error_msg = stderr.decode('utf-8', errors='ignore') if stderr else 'Unknown error'
+                    # Check for common errors
+                    if 'ModuleNotFoundError' in error_msg or 'No module named' in error_msg:
+                        if 'pygame' in error_msg.lower():
+                            flash('Error: Pygame is not installed. Please install it with: pip install pygame', 'error')
+                        else:
+                            flash(f'Missing module: {error_msg[:150]}', 'error')
+                    else:
+                        flash(f'Game failed to start: {error_msg[:200]}', 'error')
+                    print(f"Game process exited with code {process.returncode}")
+                    print(f"STDERR: {error_msg}")
+                    return redirect(url_for('baccarat_game'))
+            except Exception as e:
+                # Fallback: try without CREATE_NEW_CONSOLE
+                try:
+                    process = subprocess.Popen(
+                        [python_exe, script_path], 
+                        cwd=game_dir,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    )
+                    import time
+                    time.sleep(0.5)
+                    if process.poll() is not None:
+                        stdout, stderr = process.communicate()
+                        error_msg = stderr.decode('utf-8', errors='ignore') if stderr else 'Unknown error'
+                        if 'ModuleNotFoundError' in error_msg or 'No module named' in error_msg:
+                            if 'pygame' in error_msg.lower():
+                                flash('Error: Pygame is not installed. Please install it with: pip install pygame', 'error')
+                            else:
+                                flash(f'Missing module: {error_msg[:150]}', 'error')
+                        else:
+                            flash(f'Game failed to start: {error_msg[:200]}', 'error')
+                        return redirect(url_for('baccarat_game'))
+                except Exception as e2:
+                    flash(f'Error launching game: {str(e2)}', 'error')
+                    print(f"Error details: {e2}")
+                    import traceback
+                    print(traceback.format_exc())
+                    return redirect(url_for('baccarat_game'))
+        else:
+            # Unix/Linux: Run in background
+            subprocess.Popen([python_exe, script_path], cwd=game_dir)
+        
         flash('Baccarat game launched!', 'success')
     except Exception as e:
         flash(f'Error launching game: {str(e)}', 'error')
+        import traceback
+        print(f"Error details: {traceback.format_exc()}")
     
     return redirect(url_for('baccarat_game'))
 
