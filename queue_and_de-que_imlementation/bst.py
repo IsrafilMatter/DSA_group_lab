@@ -1,4 +1,3 @@
-# bst.py
 
 class Node:
     def __init__(self, value):
