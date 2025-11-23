@@ -4,10 +4,23 @@
 
 {% block content %}
 <div class="restaurant-container">
-    <h1> Restaurant Queue Simulator</h1>
+    <h1>Restaurant Queue Simulator</h1>
     <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
         Manage customer queue using FIFO (First In, First Out) principle
     </p>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <div class="queue-display" id="queueDisplay">
         {% if queue %}
@@ -46,7 +59,7 @@
             <button type="submit">➕ Add to Queue</button>
         </form>
 
-        <form class="form-button-only" action="/projects/restaurant_simulator/remove" method="GET">
+        <form class="form-button-only" action="/projects/restaurant_simulator/remove" method="POST">
             <button type="submit" style="background: linear-gradient(135deg, var(--danger-color), #dc2626);">
                 ➖ Remove Next Customer
             </button>
@@ -54,13 +67,13 @@
 
         <form class="form-button-only" action="/projects/restaurant_simulator/next" method="GET">
             <button type="submit" style="background: linear-gradient(135deg, var(--success-color), #059669);">
-                View Next Customer
+                👤 View Next Customer
             </button>
         </form>
 
         <form class="form-button-only" action="/projects/restaurant_simulator/size" method="GET">
             <button type="submit" style="background: linear-gradient(135deg, var(--secondary-color), #7c3aed);">
-                View Queue Size
+                📊 View Queue Size
             </button>
         </form>
     </div>
