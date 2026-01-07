@@ -22,21 +22,13 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Available Tables -->
-    <div style="margin-bottom: 2rem;">
-        <h2 style="text-align: center; margin-bottom: 1rem;">Available Tables</h2>
-        <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-            {% for size in [2, 4, 8] %}
-            <div style="background: var(--bg-tertiary); padding: 1rem 1.5rem; border-radius: var(--radius-lg); text-align: center; min-width: 150px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-                <div style="font-size: 0.875rem; color: var(--text-secondary);">{{ size }}-Seater Tables</div>
-                <div style="font-size: 1.5rem; font-weight: 700; background: var(--gradient-purple); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                    {{ available_tables[size]|length }} available
-                </div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                    {% if available_tables[size] %}
-                        Tables: {{ available_tables[size]|join(', ') }}
-                    {% else %}
-                        All occupied
+    <div class="queue-display" id="queueDisplay">
+        {% if queue %}
+            {% for customer in queue %}
+                <div class="queue-item">
+                    <span style="font-weight: 600;">{{ customer }}</span>
+                    {% if loop.first %}
+                        <span style="display: block; font-size: 0.75rem; color: var(--primary-color); margin-top: 0.25rem;">← Next</span>
                     {% endif %}
                 </div>
                 </div>
@@ -104,9 +96,7 @@
             <button type="submit">Customer Walk-In</button>
         </form>
 
-        <form class="form" action="/projects/restaurant_simulator/remove" method="POST">
-            <label for="cancel_name">Cancel Customer (by name)</label>
-            <input type="text" id="cancel_name" name="name" placeholder="Enter customer name" required>
+        <form class="form-button-only" action="/projects/restaurant_simulator/remove" method="POST">
             <button type="submit" style="background: linear-gradient(135deg, var(--danger-color), #dc2626);">
                 Cancel Customer
             </button>
@@ -126,7 +116,13 @@
                 {% endfor %}
             </select>
             <button type="submit" style="background: linear-gradient(135deg, var(--success-color), #059669);">
-                Finish Meal
+                👤 View Next Customer
+            </button>
+        </form>
+
+        <form class="form-button-only" action="/projects/restaurant_simulator/size" method="GET">
+            <button type="submit" style="background: linear-gradient(135deg, var(--secondary-color), #7c3aed);">
+                📊 View Queue Size
             </button>
         </form>
     </div>

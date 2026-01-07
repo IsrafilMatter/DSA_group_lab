@@ -91,49 +91,48 @@ def profile():
 def projects():
     return render_template('projects.html')
 
+@app.route('/projects/queue_card_game')
+def queue_card_game():
+    return render_template('queue_card_game.html')
+
 @app.route('/projects/restaurant_simulator')
-def restaurant_route():
+def restaurant():
     session.pop('_flashes', None)
-    status = restaurant.status()
-    queue = status.get('queue', [])
-    return render_template('restaurant.html', 
-                         queue=queue,
-                         available_tables=status.get('available_tables', {}))
+    return render_template('restaurant.html', queue=Q.get_queue_list())
 
 @app.route('/projects/restaurant_simulator/add', methods=['POST'])
 def add_customer():
     name = request.form.get('name')
-    party_size = request.form.get('party_size', type=int)
-    if name and party_size:
-        if party_size not in [2, 4, 8]:
-            flash('Party size must be 2, 4, or 8!', 'error')
-        else:
-            message = restaurant.walk_in(name, party_size)
-            flash(f'{message}', 'success')
+    if name:
+        Q.enqueue(name)
+        flash(f'✅ Added "{name}" to the queue!', 'success')
     else:
-        flash('Please enter a customer name and party size!', 'error')
-    return redirect(url_for('restaurant_route'))
+        flash('❌ Please enter a customer name!', 'error')
+    return redirect(url_for('restaurant'))
 
 @app.route('/projects/restaurant_simulator/remove', methods=['POST'])
 def remove_customer():
-    name = request.form.get('name')
-    if name:
-        message = restaurant.cancel_customer(name)
-        flash(f'{message}', 'success')
+    if Q.is_empty():
+        flash('❌ Queue is empty, nothing to remove!', 'error')
     else:
-        flash('Please enter a customer name!', 'error')
-    return redirect(url_for('restaurant_route'))
+        removed = Q.dequeue()
+        flash(f'✅ Removed "{removed}" from the queue!', 'success')
+    return redirect(url_for('restaurant'))
 
-@app.route('/projects/restaurant_simulator/finish_meal', methods=['POST'])
-def finish_meal():
-    table_id = request.form.get('table_id', type=int)
-    if table_id:
-        table_size = table_id // 10
-        message = restaurant.finish_meal(table_size, table_id)
-        flash(f'{message}', 'success')
+@app.route('/projects/restaurant_simulator/next')
+def next_customer():
+    next_customer = Q.peek()
+    if next_customer is None:
+        flash('ℹ️ Queue is empty, no next customer!', 'info')
     else:
-        flash('Please select a table!', 'error')
-    return redirect(url_for('restaurant_route'))
+        flash(f'👤 Next customer: {next_customer}', 'info')
+    return redirect(url_for('restaurant'))
+
+@app.route('/projects/restaurant_simulator/size')
+def queue_size():
+    size = Q.size()
+    flash(f'📊 Queue size: {size} customer(s)', 'info')
+    return redirect(url_for('restaurant'))
 
 # Tab Manager Routes
 @app.route('/projects/tab_manager')
@@ -145,9 +144,9 @@ def add_front():
     page = request.form.get("page")
     if page:
         tabs.appendleft(page)
-        flash(f'Added "{page}" to front!', 'success')
+        flash(f'✅ Added "{page}" to front!', 'success')
     else:
-        flash('Please enter a page name!', 'error')
+        flash('❌ Please enter a page name!', 'error')
     return redirect(url_for("tab_manager"))
 
 @app.route('/projects/tab_manager/add_rear', methods=['POST'])
@@ -155,27 +154,27 @@ def add_rear():
     page = request.form.get("page")
     if page:
         tabs.append(page)
-        flash(f'Added "{page}" to rear!', 'success')
+        flash(f'✅ Added "{page}" to rear!', 'success')
     else:
-        flash('Please enter a page name!', 'error')
+        flash('❌ Please enter a page name!', 'error')
     return redirect(url_for("tab_manager"))
 
 @app.route('/projects/tab_manager/remove_front', methods=['POST'])
 def remove_front():
     if tabs:
         removed = tabs.popleft()
-        flash(f'Removed "{removed}" from front!', 'success')
+        flash(f'✅ Removed "{removed}" from front!', 'success')
     else:
-        flash('No tabs to remove!', 'error')
+        flash('❌ No tabs to remove!', 'error')
     return redirect(url_for("tab_manager"))
 
 @app.route('/projects/tab_manager/remove_rear', methods=['POST'])
 def remove_rear():
     if tabs:
         removed = tabs.pop()
-        flash(f'Removed "{removed}" from rear!', 'success')
+        flash(f'✅ Removed "{removed}" from rear!', 'success')
     else:
-        flash('No tabs to remove!', 'error')
+        flash('❌ No tabs to remove!', 'error')
     return redirect(url_for("tab_manager"))
 
 # Binary Search Tree Routes
