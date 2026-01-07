@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from collections import deque
 from bst import BST
 from restaurant import Restaurant
+from station_lines_graph import stations_graph
+from collections import deque
 import subprocess
 import os
 import sys
@@ -55,6 +57,20 @@ class Queue:
             result.append(current.data)
             current = current.next
         return result
+    
+def bfs_shortest_path(graph, start, goal):
+    visited = set()
+    queue = deque([[start]])
+    while queue:
+        path = queue.popleft()
+        station = path[-1]
+        if station == goal:
+            return path
+        if station not in visited:
+            visited.add(station)
+            for neighbor in graph.vertices[station]:
+                queue.append(path + [neighbor])
+    return None
 
 restaurant = Restaurant()
 tabs = deque()
@@ -332,6 +348,84 @@ def run_baccarat_game():
         print(f"Error details: {traceback.format_exc()}")
     
     return redirect(url_for('baccarat_game'))
+
+@app.route("/projects/train-stations-simulator", methods=["GET", "POST"])
+def train():
+    path = None
+    message = ""
+    stations = stations = sorted([station.replace('_', ' ') for station in stations_graph.vertices.keys()])
+    display_to_key = {station.replace('_', ' '): station for station in stations_graph.vertices.keys()}
+
+    if request.method == "POST":
+        start_display = request.form.get("from_station")
+        end_display = request.form.get("to_station")
+
+        start = display_to_key.get(start_display)
+        end = display_to_key.get(end_display)
+        if start is None or end is None:
+            message = "Invalid station input! Please select from available stations."
+        else:
+            path = bfs_shortest_path(stations_graph, start, end)
+            if not path:
+                message = "No path found between the selected stations."
+
+
+    return render_template("transport_page.html", stations=stations, path=path, message=message, station_coords=station_coords)
+
+#station coords for html coloring
+station_coords = {
+    #MRT COORDS
+    "North_Avenue": (60,100),
+    "Quezon_Avenue": (120,140),
+    "GMA_Kamuning": (180,180),
+    "Araneta_Center-Cubao": (180,300),
+    "Santolan-Anapolis": (180,380),
+    "Ortigas": (180,480),
+    "Shaw_Boulevard": (140,520),
+    "Boni_Avenue": (80,560),
+    "Guadalupe": (0,620),
+    "Buendia": (-80,680),
+    "Ayala": (-180,703),
+    "Magallanes": (-280,703),
+    "Taft_Avenue": (-380,703),
+
+    #LRT2 COORDS
+    "Recto": (-420, 340),
+    "Legarda": (-340, 340),
+    "Pureza": (-260, 340),
+    "V_Mapa": (-160, 340),
+    "J_Ruiz": (-80, 340),
+    "Gilmore": (30, 335),
+    "Betty_Go-Belmonte": (80, 300),
+    "Araneta_Center-Cubao": (180,300),
+    "Anonas": (240, 300),
+    "Katipunan": (300, 300),
+    "Santolan": (360, 335),
+    "Marikina-Pasig": (440, 335),
+    "Antipolo": (520, 335),
+
+    #LRT2 COORDS
+    "Roosevelt": (50,50),
+    "Balintawak": (-200, 50),
+    "Monumento": (-450, 50),
+    "5th_Avenue": (-450, 100),
+    "R_Papa": (-450, 140),
+    "Abad_Santos": (-450, 180),
+    "Blumentritt": (-450, 220),
+    "Tayuman": (-450, 260),
+    "Bambang": (-450, 300),
+    "Doroteo_Jose": (-450, 340),
+    "Carriedo": (-450, 380),
+    "Central_Terminal": (-450, 420),
+    "UN_Avenue": (-450, 460),
+    "Pedro_Gil": (-450, 500),
+    "Quirino": (-450, 540),
+    "Vito_Cruz": (-450, 580),
+    "Gil_Puyat": (-450, 620),
+    "Libertad": (-450, 660),
+    "EDSA": (-450, 700),
+    "Baclaran": (-450, 740)
+}
 
 if __name__ == "__main__":
     app.run(debug=True)
